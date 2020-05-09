@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>从零搭建docker+jenkins+node.js自动化部署环境</title>
+    <url>/2018/09/04/%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BAdocker-jenkins-node-js%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E7%8E%AF%E5%A2%83/</url>
+    <content><![CDATA[<p>Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的容器中，然后发布到任何流行的 Linux 机器上，也可以实现虚拟化。容器是完全使用沙箱机制，相互之间不会有任何接口</p>
+<a id="more"></a>
+<blockquote>
+<p>本次案例基于CentOS 7系统</p>
+</blockquote>
+<blockquote>
+<p>适合有一定docker使用经验的人阅读</p>
+</blockquote>
+<blockquote>
+<p>适合有一定linux命令使用经验的人阅读</p>
+</blockquote>
+<h4 id="1、docker部分"><a href="#1、docker部分" class="headerlink" title="1、docker部分"></a>1、docker部分</h4><h3 id="1-1、docker简介"><a href="#1-1、docker简介" class="headerlink" title="1.1、docker简介"></a>1.1、docker简介</h3><p>Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的容器中，然后发布到任何流行的 Linux 机器上，也可以实现虚拟化。容器是完全使用沙箱机制，相互之间不会有任何接口</p>
+<h4 id="1-2、docker架构"><a href="#1-2、docker架构" class="headerlink" title="1.2、docker架构"></a>1.2、docker架构</h4><p>简单的说，docker就是一个轻量级的linux系统。Docker 容器通过 Docker 镜像来创建。容器与镜像的关系类似于面向对象编程中的对象与类。docker架构如图所示：</p>
+<p><img src="0.png" alt=""></p>
+<h4 id="1-3、docker虚拟机管理命令"><a href="#1-3、docker虚拟机管理命令" class="headerlink" title="1.3、docker虚拟机管理命令"></a>1.3、docker虚拟机管理命令</h4><p><img src="1.png" alt=""></p>
+<h4 id="1-4、安装docker"><a href="#1-4、安装docker" class="headerlink" title="1.4、安装docker"></a>1.4、安装docker</h4><ol>
+<li>更新软件库<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum update -y</span><br></pre></td></tr></table></figure></li>
+<li>安装docker<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum install docker -y</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h4 id="1-5、启动docker服务"><a href="#1-5、启动docker服务" class="headerlink" title="1.5、启动docker服务"></a>1.5、启动docker服务</h4><ol>
+<li>启动docker服务<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">service docker start</span><br></pre></td></tr></table></figure></li>
+<li>其它相关命令<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">service docker restart  // 重启docker服务</span><br><span class="line">service docker stop     // 停止docker服务</span><br></pre></td></tr></table></figure>
+<h2 id="2、node部分"><a href="#2、node部分" class="headerlink" title="2、node部分"></a>2、node部分</h2>可以通过koa框架随便写一个hello-world项目，然后在项目的根目录下新建一个Dockerfile文件</li>
+</ol>
+<p>Dockerfile 是一个文本文件，其内包含了一条条的指令(Instruction)，每一条指令构建一层，因此每一条指令的内容，就是描述该层应当如何构建。</p>
+<p>笔者自己的Dockerfile文件配置信息如下，熟悉docker的人可以自行配置</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Dockerfile</span></span><br><span class="line"><span class="comment"># 使用node做为镜像</span></span><br><span class="line"><span class="string">FROM</span> <span class="string">node</span></span><br><span class="line"><span class="comment"># 在容器中创建该目录</span></span><br><span class="line"><span class="string">RUN</span> <span class="string">mkdir</span> <span class="string">-p</span> <span class="string">/home/project</span></span><br><span class="line"><span class="comment"># 设置容器的工作目录为该目录</span></span><br><span class="line"><span class="string">WORKDIR</span> <span class="string">/home/project</span> </span><br><span class="line"><span class="comment"># 向外提供3000端口</span></span><br><span class="line"><span class="string">EXPOSE</span> <span class="number">3000</span></span><br><span class="line"><span class="comment"># 容器创建完成后执行的命令</span></span><br><span class="line"><span class="string">CMD</span> <span class="string">npm</span> <span class="string">install</span> <span class="string">--registry=https://registry.npm.taobao.org</span> <span class="string">&amp;&amp;</span> <span class="string">node</span> <span class="string">./start.js</span></span><br></pre></td></tr></table></figure>
+
+<p>将该项目发布到github上，为之后的jenkins部署做前提准备</p>
+<h2 id="3、jenkins部分"><a href="#3、jenkins部分" class="headerlink" title="3、jenkins部分"></a>3、jenkins部分</h2><ul>
+<li>查询jenkins镜像<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker search jenkins</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><img src="2.png" alt=""></p>
+<ul>
+<li><p>拉取最新的jenkins镜像</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker pull jenkins:latest</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动jenkins</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo docker run -d -u 0 --privileged  --name jenkins_node1 -p 49003:8080 -v /root/jenkins_node1:/var/jenkins_home jenkins:latest</span><br></pre></td></tr></table></figure></li>
+<li><p>命令解析：</p>
+</li>
+</ul>
+<ol>
+<li>-u 0</li>
+</ol>
+<p>指的是传入root账号ID，覆盖容器中内置的账号<br>2. -v /root/jenkins_node1:/var/jenkins_home</p>
+<p>指的是 将docker容器内的目<strong>录/var/jenkins_home</strong>映射到宿主机<br><strong>/root/jenkins_node1</strong>目录上</p>
+<ol start="3">
+<li>–name jenkins_node1</li>
+</ol>
+<p>将容器命名为 jenkins_node1</p>
+<ol start="4">
+<li>-p 49003:8080</li>
+</ol>
+<p>端口映射，将容器的8080端口映射到宿主机的49003端口</p>
+<ol start="5">
+<li>–privileged</li>
+</ol>
+<p>赋予最高权限</p>
+<ul>
+<li>整条命令的意思</li>
+</ul>
+<p>运行一个镜像为jenkins:latest的容器，命名为jenkins_node1，使用root账号覆盖容器中的账号，赋予最高权限，将容器的<br><strong>/var/jenkins_home</strong>映射到宿主机的<br><strong>/root/jenkins_node1</strong>目录下，映射容器中<strong>8080</strong>端口到宿主机<strong>49003</strong>端口</p>
+<ul>
+<li>查看jenkins</li>
+</ul>
+<p>执行完成后，等待几十秒，等待jenkins容器启动初始化。</p>
+<p>可以查看宿主机<br><strong>/root/jenkins_node1</strong>下是否多了很多文件</p>
+<p>到浏览器中输入 <strong>localhost:49003</strong> 查看jenkins是否启动成功</p>
+<p>看到如下界面说明启动成功：</p>
+<p><img src="3.png" alt=""></p>
+<ul>
+<li>获取密码</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cat /root/jenkins_node1/secrets/initialAdminPassword</span><br></pre></td></tr></table></figure>
+<p>复制输出的密码，粘贴到页面中，点击continue会进入到下面这个页面</p>
+<p><img src="4.png" alt=""></p>
+<p>点击安装</p>
+<p><img src="5.png" alt=""></p>
+<p>等待安装完成，进入到创建管理员账号界面</p>
+<p><img src="6.png" alt=""></p>
+<p>输入账号密码信息后点击保存（信息要填完），来到首页</p>
+<p><img src="7.png" alt=""></p>
+<p>配置jenkins，进入系统管理页面，管理插件</p>
+<p><img src="8.png" alt=""></p>
+<p>选择 ssh插件，</p>
+<p><img src="9.png" alt=""></p>
+<p>直接安装，等待安装完成，回到首页，</p>
+<p>来到 系统管理 -&gt; 系统配置</p>
+<p><img src="10.png" alt=""></p>
+<p>拖到最下Publish over SSH这</p>
+<p><img src="11.png" alt=""></p>
+<p>选择<strong>高级</strong>，输入服务器IP，用户名，密码，然后点击 Test Configuration</p>
+<p>显示 Success 则说明配置没问题。然后保存，回到首页</p>
+<p>新建一个项目</p>
+<p><img src="12.png" alt=""></p>
+<p>输入项目名称</p>
+<p><img src="13.png" alt=""></p>
+<p>选择源码管理，使用git管理，输入github仓库地址，添加github用户</p>
+<p><img src="14.png" alt=""></p>
+<p><img src="15.png" alt=""></p>
+<p><img src="16.png" alt=""></p>
+<p>完成来到选择构建环境，</p>
+<p><img src="17.png" alt=""></p>
+<p>执行的命令</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo docker stop nodeapp || true \</span><br><span class="line"> &amp;&amp; sudo docker rm nodeapp || true \</span><br><span class="line"> &amp;&amp; cd &#x2F;root&#x2F;jenkins_node1&#x2F;workspace&#x2F;node  \</span><br><span class="line"> &amp;&amp; sudo docker build --rm --no-cache&#x3D;true  -t node  - &lt; Dockerfile \</span><br><span class="line"> &amp;&amp; sudo docker run -d --privileged&#x3D;true --name nodeapp -p 3000:3000 -v &#x2F;root&#x2F;jenkins_node1&#x2F;workspace&#x2F;node:&#x2F;home&#x2F;project node</span><br></pre></td></tr></table></figure>
+
+<p>保存后，点击立即构建</p>
+<p>构建成功后，可以在宿主机的目录/root/jenkins_node1/workspace/node下看到你的项目文件了</p>
+<p>在浏览器输入 docker服务器地址 localhost:3000 即可访问到页面信息</p>
+<blockquote>
+<p>启动失败的，可以查看日志来确定一下失败的原因</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker logs nodeapp</span><br></pre></td></tr></table></figure>
+
+<h2 id="4、jenkins-github自动部署"><a href="#4、jenkins-github自动部署" class="headerlink" title="4、jenkins + github自动部署"></a>4、jenkins + github自动部署</h2><blockquote>
+<p>如果想本地代码提交push到github后，jenkins自动拉取最新代码重新部署，请继续看</p>
+</blockquote>
+<blockquote>
+<p>服务器要外网能访问，本地环境想测试的可以尝试内网穿透 <a href="https://natapp.cn/" target="_blank" rel="noopener">natapp</a> 或者 <a href="https://www.ngrok.cc/" target="_blank" rel="noopener">ngrok</a></p>
+</blockquote>
+<ol>
+<li>在首页点击用户</li>
+</ol>
+<p>首页 -&gt; 用户 -&gt; root</p>
+<p><img src="18.png" alt=""></p>
+<ol start="2">
+<li>点击设置 -&gt; show API Token</li>
+</ol>
+<p><img src="19.png" alt=""></p>
+<ol start="3">
+<li><p>复制API Token 里面的值</p>
+</li>
+<li><p>返回到首页 -&gt; node -&gt; 配置 -&gt; 构建触发器<br>粘贴到身份验证令牌 中</p>
+</li>
+</ol>
+<p><img src="20.png" alt=""></p>
+<ol start="5">
+<li>登陆到你的github项目页面<br>打开 Setting -&gt; Webhooks -&gt; Add webhooks</li>
+</ol>
+<p><img src="21.png" alt=""></p>
+<ol start="6">
+<li>添加 webhooks</li>
+</ol>
+<p><img src="22.png" alt=""></p>
+<ol start="7">
+<li>修改jenkins的安全策略</li>
+</ol>
+<p>jenkins首页，选择 系统管理–&gt;Configure Global Security(系统设置下面那个) 进行如下设置</p>
+<p><img src="23.png" alt=""></p>
+<p>至此，已完成 git push 后，jenkins 自动构建自动部署。</p>
+<h2 id="5、docker的常用命令"><a href="#5、docker的常用命令" class="headerlink" title="5、docker的常用命令"></a>5、docker的常用命令</h2><blockquote>
+<p>对docker比较感兴趣的人可以了解一下，继续学习</p>
+</blockquote>
+<blockquote>
+<p>镜像相关</p>
+</blockquote>
+<ul>
+<li>查询镜像<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker search [name]</span><br></pre></td></tr></table></figure></li>
+<li>拉取镜像<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker pull [name]</span><br></pre></td></tr></table></figure></li>
+<li>导入镜像<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker load &lt; &#x2F;home&#x2F;node.tar.gz</span><br></pre></td></tr></table></figure></li>
+<li>导出镜像<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker save &gt; &#x2F;home&#x2F;node.tar.gz</span><br></pre></td></tr></table></figure></li>
+<li>查询所有镜像<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker images</span><br></pre></td></tr></table></figure></li>
+<li>删除镜像<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker rmi [name]</span><br></pre></td></tr></table></figure></li>
+<li>修改镜像名<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker tag docker.io&#x2F;node node</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<blockquote>
+<p>容器相关</p>
+</blockquote>
+<ul>
+<li>启动<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 运行并进入交互模式</span></span><br><span class="line">docker run -it --name myjava java bash </span><br><span class="line"><span class="comment"># 在后台运行</span></span><br><span class="line">docker run -d --name myjava java</span><br></pre></td></tr></table></figure></li>
+<li>端口映射<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -it --name myjava -p 9000:8085 -p 9000:8086 java bash</span><br></pre></td></tr></table></figure></li>
+<li>目录映射<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -it --name myjava -v &#x2F;home&#x2F;project:&#x2F;soft --privileged docker.io&#x2F;node bash</span><br></pre></td></tr></table></figure></li>
+<li>进入后台运行的容器<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker exec -it name bash</span><br></pre></td></tr></table></figure></li>
+<li>自动重启<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker  run --restart&#x3D;always -it --name myjava -p 9000:8085 -p 9000:8086 java bash</span><br></pre></td></tr></table></figure></li>
+<li>暂停容器<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker pause node</span><br></pre></td></tr></table></figure></li>
+<li>停止暂停容器<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker unpause node</span><br></pre></td></tr></table></figure></li>
+<li>停止容器<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker stop node</span><br></pre></td></tr></table></figure></li>
+<li>启动容器<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker start -i node</span><br></pre></td></tr></table></figure></li>
+<li>查看容器<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker ps -a</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<blockquote>
+<p>docker网段相关</p>
+</blockquote>
+<ul>
+<li>创建网段<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker network create net1</span><br></pre></td></tr></table></figure></li>
+<li>查看网段信息<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker network inspect net1</span><br></pre></td></tr></table></figure></li>
+<li>删除网段信息<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker network rm net1</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="6、总结"><a href="#6、总结" class="headerlink" title="6、总结"></a>6、总结</h2><blockquote>
+<p>笔者自己最近学习node，故想尝试一下通过Docker+jenkins来实现这个自动化部署的流程，自己踩了一天坑，总算是配置成功了。之前是使用pm2来管理node项目，以及使用pm2来自动化部署node项目的，有兴趣的可以去看一下。<a href="24.png">使用pm2自动化部署node项目</a>.算是给自己做个总结笔记。写的不好的地方，望指出。</p>
+</blockquote>
+<h2 id="公众号"><a href="#公众号" class="headerlink" title="公众号"></a>公众号</h2><p>欢迎关注我的公众号“<strong>码上开发</strong>”，每天分享最新技术资讯。关注获取最新资源</p>
+<p><img src="/images/qrcode.png" alt=""></p>
+]]></content>
+      <categories>
+        <category>大前端</category>
+      </categories>
+      <tags>
+        <tag>Node.js</tag>
+        <tag>Docker</tag>
+        <tag>Jenkins</tag>
+        <tag>容器</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>使用pm2自动化部署node项目</title>
+    <url>/2018/08/26/%E4%BD%BF%E7%94%A8pm2%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2node%E9%A1%B9%E7%9B%AE/</url>
+    <content><![CDATA[<p>pm2（process manager）是一个进程管理工具，维护一个进程列表，可以用它来管理你的node进程，负责所有正在运行的进程，并查看node进程的状态，也支持性能监控，负载均衡等功能。</p>
+<a id="more"></a>
+<h2 id="1、pm2简介"><a href="#1、pm2简介" class="headerlink" title="1、pm2简介"></a>1、pm2简介</h2><p>pm2（process manager）是一个进程管理工具，维护一个进程列表，可以用它来管理你的node进程，负责所有正在运行的进程，并查看node进程的状态，也支持性能监控，负载均衡等功能。</p>
+<h3 id="1-1、使用pm2管理的node程序的好处"><a href="#1-1、使用pm2管理的node程序的好处" class="headerlink" title="1.1、使用pm2管理的node程序的好处"></a>1.1、使用pm2管理的node程序的好处</h3><ol>
+<li>监听文件变化，自动重启程序</li>
+<li>支持性能监控</li>
+<li>负载均衡</li>
+<li>程序崩溃自动重启</li>
+<li>服务器重新启动时自动重新启动</li>
+<li>自动化部署项目</li>
+</ol>
+<h2 id="2、pm2安装与使用"><a href="#2、pm2安装与使用" class="headerlink" title="2、pm2安装与使用"></a>2、pm2安装与使用</h2><h3 id="2-1、全局安装"><a href="#2-1、全局安装" class="headerlink" title="2.1、全局安装"></a>2.1、全局安装</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install pm2 -g</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2、常用命令"><a href="#2-2、常用命令" class="headerlink" title="2.2、常用命令"></a>2.2、常用命令</h3><ul>
+<li><p>启动一个node程序</p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pm2 start start.js</span><br></pre></td></tr></table></figure>
+<p><img src="0.png" alt=""></p>
+</li>
+<li><p>启动进程并指定应用的程序名</p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pm2 start app.js --name application1</span><br></pre></td></tr></table></figure></li>
+<li><p>集群模式启动</p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; -i 表示 number-instances 实例数量</span><br><span class="line">&#x2F;&#x2F; max 表示 PM2将自动检测可用CPU的数量 可以自己指定数量</span><br><span class="line">pm2 start start.js -i max</span><br></pre></td></tr></table></figure>
+<p><img src="1.png" alt=""></p>
+</li>
+<li><p>添加进程监视 </p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 在文件改变的时候会重新启动程序</span><br><span class="line">pm2 start app.js --name start --watch</span><br></pre></td></tr></table></figure>
+<p><img src="2.png" alt=""></p>
+</li>
+<li><p>列出所有进程</p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pm2 list</span><br><span class="line">pm2 ls &#x2F;&#x2F; 简写</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+<ul>
+<li>从进程列表中删除进程  <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">// pm2 delete [appname] | id</span><br><span class="line">pm2 delete app  // 指定进程名删除</span><br><span class="line">pm2 delete 0    // 指定进程id删除</span><br></pre></td></tr></table></figure></li>
+<li>删除进程列表中所有进程  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pm2 delete all</span><br></pre></td></tr></table></figure></li>
+<li>查看某个进程具体情况  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pm2 describe app</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><img src="3.png" alt=""></p>
+<ul>
+<li><p>查看进程的资源消耗情况</p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pm2 monit</span><br></pre></td></tr></table></figure>
+<p><img src="4.png" alt=""></p>
+</li>
+<li><p>重启进程</p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pm2 restart app &#x2F;&#x2F; 重启指定名称的进程</span><br><span class="line">pm2 restart all &#x2F;&#x2F; 重启所有进程</span><br></pre></td></tr></table></figure></li>
+<li><p>查看进程日志</p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pm2 logs app    &#x2F;&#x2F; 查看该名称进程的日志</span><br><span class="line">pm2 logs all    &#x2F;&#x2F; 查看所有进程的日志</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置pm2开机自启</p>
+</li>
+</ul>
+<p>开启启动设置，此处是CentOS系统，其他系统替换最后一个选项（可选项：ubuntu, centos, redhat, gentoo, systemd, darwin, amazon）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pm2 startup centos</span><br></pre></td></tr></table></figure>
+<p>然后按照提示需要输入的命令进行输入</p>
+<p>最后保存设置</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pm2 save</span><br></pre></td></tr></table></figure>
+<h2 id="3、通过pm2配置文件来自动部署项目"><a href="#3、通过pm2配置文件来自动部署项目" class="headerlink" title="3、通过pm2配置文件来自动部署项目"></a>3、通过pm2配置文件来自动部署项目</h2><p>确保服务器安装了pm2，没有安装的话先安装</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install pm2 -g</span><br></pre></td></tr></table></figure>
+<h3 id="3-1-在项目根目录下新建一个-deploy-yaml-文件"><a href="#3-1-在项目根目录下新建一个-deploy-yaml-文件" class="headerlink" title="3.1 在项目根目录下新建一个 deploy.yaml 文件"></a>3.1 在项目根目录下新建一个 deploy.yaml 文件</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># deploy.yaml</span></span><br><span class="line"><span class="attr">apps:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">script:</span> <span class="string">./start.js</span>       <span class="comment"># 入口文件</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">'app'</span>              <span class="comment"># 程序名称</span></span><br><span class="line">    <span class="attr">env:</span>                     <span class="comment"># 环境变量</span></span><br><span class="line">      <span class="attr">COMMON_VARIABLE:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">env_production:</span></span><br><span class="line">      <span class="attr">NODE_ENV:</span> <span class="string">production</span></span><br><span class="line"></span><br><span class="line"><span class="attr">deploy:</span>                     <span class="comment"># 部署脚本</span></span><br><span class="line">  <span class="attr">production:</span>               <span class="comment"># 生产环境</span></span><br><span class="line">    <span class="attr">user:</span> <span class="string">lentoo</span>            <span class="comment"># 服务器的用户名</span></span><br><span class="line">    <span class="attr">host:</span> <span class="number">192.168</span><span class="number">.2</span><span class="number">.166</span>     <span class="comment"># 服务器的ip地址</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">22</span>                <span class="comment"># ssh端口</span></span><br><span class="line">    <span class="attr">ref:</span> <span class="string">origin/master</span>      <span class="comment"># 要拉取的git分支</span></span><br><span class="line">    <span class="attr">ssh_options:</span> <span class="string">StrictHostKeyChecking=no</span> <span class="comment"># SSH 公钥检查</span></span><br><span class="line">    <span class="attr">repo:</span> <span class="string">https://github.com/**.git</span> <span class="comment"># 远程仓库地址</span></span><br><span class="line">    <span class="attr">path:</span> <span class="string">/home</span>              <span class="comment"># 拉取到服务器某个目录下</span></span><br><span class="line">    <span class="attr">pre-deploy:</span> <span class="string">git</span> <span class="string">fetch</span> <span class="string">--all</span> <span class="comment"># 部署前执行</span></span><br><span class="line">    <span class="attr">post-deploy:</span> <span class="string">npm</span> <span class="string">install</span> <span class="string">&amp;&amp;</span>  <span class="string">pm2</span> <span class="string">reload</span> <span class="string">deploy.yaml</span> <span class="string">--env</span> <span class="string">production</span> <span class="comment"># 部署后执行</span></span><br><span class="line">    <span class="attr">env:</span></span><br><span class="line">      <span class="attr">NODE_ENV:</span> <span class="string">production</span></span><br></pre></td></tr></table></figure>
+<h3 id="3-2-配置git的ssh免密认证"><a href="#3-2-配置git的ssh免密认证" class="headerlink" title="3.2 配置git的ssh免密认证"></a>3.2 配置git的ssh免密认证</h3><ol>
+<li><p>在服务器中生成rsa公钥和私钥，当前是 <strong>centos7</strong> 下进行</p>
+</li>
+<li><p>前提服务器要安装git，没有安装的先安装git，已安装的跳过</p>
+ <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum –y install git</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成秘钥</p>
+ <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ssh-keygen -t rsa -C &quot;xxx@xxx.com&quot;</span><br></pre></td></tr></table></figure>
+<p> 在~/.ssh目录下有 id_rsa和 id_rsa.pub两个文件，其中id_rsa.pub文件里存放的即是公钥key。</p>
+</li>
+<li><p>登录到GitHub，点击右上方的头像，选择settings ，点击Add SSH key，把id_rsa.pub的内容复制到里面即可。</p>
+</li>
+</ol>
+<p><img src="5.png" alt=""></p>
+<h3 id="3-3-使用pm2部署项目"><a href="#3-3-使用pm2部署项目" class="headerlink" title="3.3 使用pm2部署项目"></a>3.3 使用pm2部署项目</h3><p>每次部署前先将本地的代码提交到远程git仓库</p>
+<ul>
+<li>首次部署<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pm2 deploy deploy.yaml production setup</span><br></pre></td></tr></table></figure>
+部署完成后，既可登陆服务器查看配置的目录下是否从git上拉取了项目</li>
+<li>再次部署<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pm2 deploy deploy.yaml production update</span><br></pre></td></tr></table></figure>
+<h3 id="3-4-该部署流程同样适用前端项目"><a href="#3-4-该部署流程同样适用前端项目" class="headerlink" title="3.4 该部署流程同样适用前端项目"></a>3.4 该部署流程同样适用前端项目</h3>如vue-cli的项目，自动部署到服务器，自动执行npm run build 命令，生成的dist目录，指定到nginx的静态文件目录下。<h2 id="4、可能会遇到的坑"><a href="#4、可能会遇到的坑" class="headerlink" title="4、可能会遇到的坑"></a>4、可能会遇到的坑</h2></li>
+<li>在window系统下 vscode的命令行程序，以及powershell执行部署的命令时，出现部署失败<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pm2 deploy deploy.yaml production setup</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><img src="6.png" alt=""><br>解决方案：使用git命令行来执行</p>
+<h2 id="公众号"><a href="#公众号" class="headerlink" title="公众号"></a>公众号</h2><p>欢迎关注我的公众号“<strong>码上开发</strong>”，每天分享最新技术资讯。关注获取最新资源</p>
+<p><img src="/images/qrcode.png" alt=""></p>
+]]></content>
+      <tags>
+        <tag>node.js</tag>
+        <tag>pm2</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>在centos7中安装redis，并通过node.js操作redis</title>
+    <url>/2018/08/08/%E5%9C%A8centos7%E4%B8%AD%E5%AE%89%E8%A3%85redis%EF%BC%8C%E5%B9%B6%E9%80%9A%E8%BF%87node.js%E6%93%8D%E4%BD%9Credis/</url>
+    <content><![CDATA[<p>cent OS7 下使用redis</p>
+<a id="more"></a>
+<h2 id="1、cent-OS7-下使用redis"><a href="#1、cent-OS7-下使用redis" class="headerlink" title="1、cent OS7 下使用redis"></a>1、cent OS7 下使用redis</h2><ul>
+<li>关闭防火墙<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl stop firewalld.service <span class="comment">#停止firewall</span></span><br><span class="line">systemctl <span class="built_in">disable</span> firewalld.service <span class="comment">#禁止firewall开机启动</span></span><br><span class="line">   firewall-cmd --state <span class="comment">#查看默认防火墙状态（关闭后显示notrunning，开启后显示running）</span></span><br></pre></td></tr></table></figure></li>
+<li>配置编译环境：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install gcc-c++</span><br></pre></td></tr></table></figure></li>
+<li>下载源码：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget http://download.redis.io/releases/redis-4.0.11.tar.gz</span><br></pre></td></tr></table></figure></li>
+<li>解压源码：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tar -zxvf redis-4.0.11.tar.gz</span><br></pre></td></tr></table></figure></li>
+<li>进入到解压目录：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> redis-4.0.11</span><br></pre></td></tr></table></figure></li>
+<li>进入到解压目录：<br>执行make编译Redis：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">make MALLOC=libc</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><strong>注意：</strong> </p>
+<p>make命令执行完成编译后，会在src目录下生成6个可执行文件，分别是</p>
+<ol>
+<li>redis-server、</li>
+<li>redis-cli、</li>
+<li>redis-benchmark、</li>
+<li>redis-check-aof、</li>
+<li>redis-check-rdb、</li>
+<li>redis-sentinel</li>
+</ol>
+<ul>
+<li>安装Redis：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">make install</span><br></pre></td></tr></table></figure></li>
+</ul>
+<ul>
+<li>配置Redis能随系统启动:<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./utils/install_server.sh</span><br></pre></td></tr></table></figure>
+显示结果信息如下：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Welcome to the redis service installer</span><br><span class="line">This script will <span class="built_in">help</span> you easily <span class="built_in">set</span> up a running redis server</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="redis-配置"><a href="#redis-配置" class="headerlink" title="redis 配置"></a>redis 配置</h2><ul>
+<li>关闭保护模式<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">config <span class="built_in">set</span> protected-mode no</span><br></pre></td></tr></table></figure></li>
+<li>设置密码<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">// 获取密码</span><br><span class="line">config get requirepass</span><br><span class="line"></span><br><span class="line">// 设置密码 </span><br><span class="line">config <span class="built_in">set</span> requirepass yourpassword</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="2、nodejs中操作redis"><a href="#2、nodejs中操作redis" class="headerlink" title="2、nodejs中操作redis"></a>2、nodejs中操作redis</h2><p><strong>安装redis</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install redis --save</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//引入redis</span></span><br><span class="line"><span class="keyword">var</span> redis = <span class="built_in">require</span>(<span class="string">'redis'</span>)</span><br><span class="line"><span class="comment">// 连接redis服务器</span></span><br><span class="line"><span class="comment">// 连接redis数据库，createClient(port,host,options);</span></span><br><span class="line"><span class="comment">// 如果REDIS在本机，端口又是默认，直接写createClient()即可</span></span><br><span class="line">client = redis.createClient(<span class="number">6379</span>, <span class="string">'192.168.73.128'</span>, &#123;</span><br><span class="line">    password: <span class="string">'lentoo'</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//错误监听？</span></span><br><span class="line">client.on(<span class="string">"error"</span>, <span class="function"><span class="keyword">function</span> (<span class="params">err</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(err);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-1常用API"><a href="#2-1常用API" class="headerlink" title="2.1常用API"></a>2.1常用API</h3><ul>
+<li><h4 id="redis-print"><a href="#redis-print" class="headerlink" title="redis.print"></a>redis.print</h4>通过redis回显</li>
+<li><h4 id="set-像redis中存入一个键值对"><a href="#set-像redis中存入一个键值对" class="headerlink" title="set 像redis中存入一个键值对"></a>set 像redis中存入一个键值对</h4><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">client.set(<span class="string">'key'</span>,<span class="string">'value'</span>)</span><br><span class="line"><span class="comment">// 设置过期时间 10s后过期</span></span><br><span class="line">client.set(<span class="string">'key'</span>,<span class="string">'value'</span>,<span class="string">'EX'</span>,<span class="number">10</span>)</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="get-获取在redis中存入的值"><a href="#get-获取在redis中存入的值" class="headerlink" title="get 获取在redis中存入的值"></a>get 获取在redis中存入的值</h4><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">client.get(<span class="string">'key'</span>) <span class="comment">// value</span></span><br></pre></td></tr></table></figure></li>
+<li><h4 id="hset-通过hash-key-存值"><a href="#hset-通过hash-key-存值" class="headerlink" title="hset 通过hash key 存值"></a>hset 通过hash key 存值</h4><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">client.hset(<span class="string">'hash key'</span>,<span class="string">'key'</span>,<span class="string">'value'</span>, redis.print)</span><br><span class="line"><span class="string">``</span><span class="string">` </span></span><br><span class="line"><span class="string">* #### hget 通过hash key 获取值</span></span><br><span class="line"><span class="string">`</span><span class="string">``</span>javascript</span><br><span class="line">client.hget(<span class="string">'hash key'</span>,<span class="string">'key'</span>, redis.print)</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="hkeys-所有的”hash-key”"><a href="#hkeys-所有的”hash-key”" class="headerlink" title="hkeys 所有的”hash key”"></a>hkeys 所有的”hash key”</h4><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 遍历哈希表"hash key"</span></span><br><span class="line">client.hkeys(<span class="string">"hash key"</span>, <span class="function"><span class="keyword">function</span> (<span class="params">err, replies</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(replies.length + <span class="string">" replies:"</span>);</span><br><span class="line">    replies.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">reply, i</span>) </span>&#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">"    "</span> + i + <span class="string">": "</span> + reply);</span><br><span class="line">    &#125;);</span><br><span class="line">    client.quit();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="hmset"><a href="#hmset" class="headerlink" title="hmset"></a>hmset</h4><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">client.hmset(<span class="string">'hash 1'</span>, <span class="string">'key'</span>, <span class="string">'value111'</span>, <span class="string">'key2'</span>, <span class="string">'value222'</span>, <span class="string">'key3'</span>, <span class="string">'value3'</span>, redis.print)</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="hmget"><a href="#hmget" class="headerlink" title="hmget"></a>hmget</h4><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">client.hmget(<span class="string">'hash 1'</span>, <span class="string">'key'</span>, <span class="string">'key2'</span>, <span class="string">'key3'</span>, redis.print)</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="publish-subscribe-发布-订阅"><a href="#publish-subscribe-发布-订阅" class="headerlink" title="publish/subscribe 发布/订阅"></a>publish/subscribe 发布/订阅</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">const sub &#x3D; redis.createClient() &#x2F;&#x2F; 订阅者</span><br><span class="line">const pub &#x3D; redis.createClient() &#x2F;&#x2F; 发布者</span><br><span class="line">var msg_count &#x3D; 0;</span><br><span class="line"></span><br><span class="line">sub.on(&quot;subscribe&quot;, function (channel, count) &#123;</span><br><span class="line">    client.publish(&quot;a nice channel&quot;, &quot;I am sending a message.&quot;);</span><br><span class="line">    client.publish(&quot;a nice channel&quot;, &quot;I am sending a second message.&quot;);</span><br><span class="line">    client.publish(&quot;a nice channel&quot;, &quot;I am sending my last message.&quot;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">sub.on(&quot;message&quot;, function (channel, message) &#123;</span><br><span class="line">    console.log(&quot;sub channel &quot; + channel + &quot;: &quot; + message);</span><br><span class="line">    msg_count +&#x3D; 1;</span><br><span class="line">    if (msg_count &#x3D;&#x3D;&#x3D; 3) &#123;</span><br><span class="line">        sub.unsubscribe();</span><br><span class="line">        sub.quit();</span><br><span class="line">        client.quit();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="ready"><a href="#ready" class="headerlink" title="ready"></a>ready</h4>redis客户端连接准备好后触发，在此前所有发送给redis服务器的命令会以<strong>队列</strong>的形式进行排队，会在ready事件触发后发送给redis服务器<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">client.on(&#39;ready&#39;,function()&#123;</span><br><span class="line">    console.log(&#39;ready&#39;);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="connct-客户端在连接到服务器后触发"><a href="#connct-客户端在连接到服务器后触发" class="headerlink" title="connct 客户端在连接到服务器后触发"></a>connct 客户端在连接到服务器后触发</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">client.on(&#39;connect&#39;,function()&#123;</span><br><span class="line">    console.log(&#39;connect&#39;);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="reconnecting-客户端在连接断开后重新连接服务器时触发"><a href="#reconnecting-客户端在连接断开后重新连接服务器时触发" class="headerlink" title="reconnecting 客户端在连接断开后重新连接服务器时触发"></a>reconnecting 客户端在连接断开后重新连接服务器时触发</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">client.on(&#39;reconnecting &#39;, function (resc) &#123;</span><br><span class="line">    console.log(&#39;reconnecting&#39;,resc);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="error-错误监听"><a href="#error-错误监听" class="headerlink" title="error 错误监听"></a>error 错误监听</h4>client.on(“error”, function (err) {<br>  console.log(err);<br>});</li>
+<li><h4 id="end-连接断开时触发"><a href="#end-连接断开时触发" class="headerlink" title="end 连接断开时触发"></a>end 连接断开时触发</h4>client.on(‘end’,function(){<br>  console.log(‘end’)<br>})</li>
+<li><h4 id="createClient"><a href="#createClient" class="headerlink" title="createClient"></a>createClient</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">redis.createClient([options])</span><br><span class="line">redis.createClient(unix_socket[, options])</span><br><span class="line">redis.createClient(redis_url[, options])</span><br><span class="line">redis.createClient(port[, host][, options])</span><br></pre></td></tr></table></figure>
+<h5 id="options-object-properties"><a href="#options-object-properties" class="headerlink" title="options object properties"></a>options object properties</h5>属性 | 默认值 | 描述</li>
+</ul>
+<p>—|—|—<br>host　|    127.0.0.1  |    redis服务器地址<br>port  |    6379  |    端口号<br>connect_timeout  |    3600000    |  连接超时时间 以ms为单位<br>password  |    null  |    密码</p>
+<h2 id="公众号"><a href="#公众号" class="headerlink" title="公众号"></a>公众号</h2><p>欢迎关注我的公众号“<strong>码上开发</strong>”，每天分享最新技术资讯。关注获取最新资源</p>
+<p><img src="/images/qrcode.png" alt=""></p>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>node.js</tag>
+        <tag>redis</tag>
+      </tags>
+  </entry>
+</search>

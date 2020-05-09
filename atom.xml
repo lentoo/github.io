@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>lentoo</title>
+  
+  <subtitle>爱前端 | 爱折腾 | 爱生活 | 爱做饭</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://yoursite.com/"/>
+  <updated>2020-05-09T11:08:14.303Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name>lentoo</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>从零搭建docker+jenkins+node.js自动化部署环境</title>
+    <link href="http://yoursite.com/2018/09/04/%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BAdocker-jenkins-node-js%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E7%8E%AF%E5%A2%83/"/>
+    <id>http://yoursite.com/2018/09/04/%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BAdocker-jenkins-node-js%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E7%8E%AF%E5%A2%83/</id>
+    <published>2018-09-04T10:54:09.000Z</published>
+    <updated>2020-05-09T11:08:14.303Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的容器中，然后发布到任何流行的 Linux 机器上，也可以实现虚拟化。容器是完全使用沙箱机制，相互之间不会有任何接口&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="大前端" scheme="http://yoursite.com/categories/%E5%A4%A7%E5%89%8D%E7%AB%AF/"/>
+    
+    
+      <category term="Node.js" scheme="http://yoursite.com/tags/Node-js/"/>
+    
+      <category term="Docker" scheme="http://yoursite.com/tags/Docker/"/>
+    
+      <category term="Jenkins" scheme="http://yoursite.com/tags/Jenkins/"/>
+    
+      <category term="容器" scheme="http://yoursite.com/tags/%E5%AE%B9%E5%99%A8/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>使用pm2自动化部署node项目</title>
+    <link href="http://yoursite.com/2018/08/26/%E4%BD%BF%E7%94%A8pm2%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2node%E9%A1%B9%E7%9B%AE/"/>
+    <id>http://yoursite.com/2018/08/26/%E4%BD%BF%E7%94%A8pm2%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2node%E9%A1%B9%E7%9B%AE/</id>
+    <published>2018-08-25T16:00:00.000Z</published>
+    <updated>2020-05-09T10:49:07.486Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;pm2（process manager）是一个进程管理工具，维护一个进程列表，可以用它来管理你的node进程，负责所有正在运行的进程，并查看node进程的状态，也支持性能监控，负载均衡等功能。&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="node.js" scheme="http://yoursite.com/tags/node-js/"/>
+    
+      <category term="pm2" scheme="http://yoursite.com/tags/pm2/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>在centos7中安装redis，并通过node.js操作redis</title>
+    <link href="http://yoursite.com/2018/08/08/%E5%9C%A8centos7%E4%B8%AD%E5%AE%89%E8%A3%85redis%EF%BC%8C%E5%B9%B6%E9%80%9A%E8%BF%87node.js%E6%93%8D%E4%BD%9Credis/"/>
+    <id>http://yoursite.com/2018/08/08/%E5%9C%A8centos7%E4%B8%AD%E5%AE%89%E8%A3%85redis%EF%BC%8C%E5%B9%B6%E9%80%9A%E8%BF%87node.js%E6%93%8D%E4%BD%9Credis/</id>
+    <published>2018-08-07T16:00:00.000Z</published>
+    <updated>2020-05-09T10:52:25.742Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;cent OS7 下使用redis&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="前端" scheme="http://yoursite.com/categories/%E5%89%8D%E7%AB%AF/"/>
+    
+    
+      <category term="node.js" scheme="http://yoursite.com/tags/node-js/"/>
+    
+      <category term="redis" scheme="http://yoursite.com/tags/redis/"/>
+    
+  </entry>
+  
+</feed>

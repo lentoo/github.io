@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+    <meta name="keywords" content="HTML5,Node.js,JS,WEB前端">
+  
+  
+    <meta name="description" content="lentoo的个人博客，用于记录学习成长过程中的知识树，以通俗易懂的方式总结知识点">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    在centos7中安装redis，并通过node.js操作redis |
+    
+    lentoo</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="lentoo" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  <article id="post-在centos7中安装redis，并通过node.js操作redis" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+  
+    <h1 class="article-title" itemprop="name">
+      在centos7中安装redis，并通过node.js操作redis
+    </h1>
+  
+  
+
+
+
+
+            </header>
+            
+
+                
+                    <div class="article-meta">
+                        <a href="/2018/08/08/%E5%9C%A8centos7%E4%B8%AD%E5%AE%89%E8%A3%85redis%EF%BC%8C%E5%B9%B6%E9%80%9A%E8%BF%87node.js%E6%93%8D%E4%BD%9Credis/" class="article-date">
+  <time datetime="2018-08-07T16:00:00.000Z" itemprop="datePublished">2018-08-08</time>
+</a>
+                            
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a>
+  </div>
+
+                    </div>
+                    
+
+                        
+                            
+    <div class="tocbot"></div>
+
+
+
+
+
+                                
+
+                                    <div class="article-entry" itemprop="articleBody">
+                                        
+
+
+                                            
+
+                                                
+                                                                    <p>cent OS7 下使用redis</p>
+<a id="more"></a>
+<h2 id="1、cent-OS7-下使用redis"><a href="#1、cent-OS7-下使用redis" class="headerlink" title="1、cent OS7 下使用redis"></a>1、cent OS7 下使用redis</h2><ul>
+<li>关闭防火墙<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld.service <span class="comment">#停止firewall</span></span><br><span class="line">systemctl <span class="built_in">disable</span> firewalld.service <span class="comment">#禁止firewall开机启动</span></span><br><span class="line">   firewall-cmd --state <span class="comment">#查看默认防火墙状态（关闭后显示notrunning，开启后显示running）</span></span><br></pre></td></tr></table></figure></li>
+<li>配置编译环境：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install gcc-c++</span><br></pre></td></tr></table></figure></li>
+<li>下载源码：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://download.redis.io/releases/redis-4.0.11.tar.gz</span><br></pre></td></tr></table></figure></li>
+<li>解压源码：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf redis-4.0.11.tar.gz</span><br></pre></td></tr></table></figure></li>
+<li>进入到解压目录：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> redis-4.0.11</span><br></pre></td></tr></table></figure></li>
+<li>进入到解压目录：<br>执行make编译Redis：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make MALLOC=libc</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><strong>注意：</strong> </p>
+<p>make命令执行完成编译后，会在src目录下生成6个可执行文件，分别是</p>
+<ol>
+<li>redis-server、</li>
+<li>redis-cli、</li>
+<li>redis-benchmark、</li>
+<li>redis-check-aof、</li>
+<li>redis-check-rdb、</li>
+<li>redis-sentinel</li>
+</ol>
+<ul>
+<li>安装Redis：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make install</span><br></pre></td></tr></table></figure></li>
+</ul>
+<ul>
+<li>配置Redis能随系统启动:<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./utils/install_server.sh</span><br></pre></td></tr></table></figure>
+显示结果信息如下：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Welcome to the redis service installer</span><br><span class="line">This script will <span class="built_in">help</span> you easily <span class="built_in">set</span> up a running redis server</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="redis-配置"><a href="#redis-配置" class="headerlink" title="redis 配置"></a>redis 配置</h2><ul>
+<li>关闭保护模式<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">config <span class="built_in">set</span> protected-mode no</span><br></pre></td></tr></table></figure></li>
+<li>设置密码<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 获取密码</span><br><span class="line">config get requirepass</span><br><span class="line"></span><br><span class="line">// 设置密码 </span><br><span class="line">config <span class="built_in">set</span> requirepass yourpassword</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="2、nodejs中操作redis"><a href="#2、nodejs中操作redis" class="headerlink" title="2、nodejs中操作redis"></a>2、nodejs中操作redis</h2><p><strong>安装redis</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install redis --save</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//引入redis</span></span><br><span class="line"><span class="keyword">var</span> redis = <span class="built_in">require</span>(<span class="string">'redis'</span>)</span><br><span class="line"><span class="comment">// 连接redis服务器</span></span><br><span class="line"><span class="comment">// 连接redis数据库，createClient(port,host,options);</span></span><br><span class="line"><span class="comment">// 如果REDIS在本机，端口又是默认，直接写createClient()即可</span></span><br><span class="line">client = redis.createClient(<span class="number">6379</span>, <span class="string">'192.168.73.128'</span>, &#123;</span><br><span class="line">    password: <span class="string">'lentoo'</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//错误监听？</span></span><br><span class="line">client.on(<span class="string">"error"</span>, <span class="function"><span class="keyword">function</span> (<span class="params">err</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(err);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-1常用API"><a href="#2-1常用API" class="headerlink" title="2.1常用API"></a>2.1常用API</h3><ul>
+<li><h4 id="redis-print"><a href="#redis-print" class="headerlink" title="redis.print"></a>redis.print</h4>通过redis回显</li>
+<li><h4 id="set-像redis中存入一个键值对"><a href="#set-像redis中存入一个键值对" class="headerlink" title="set 像redis中存入一个键值对"></a>set 像redis中存入一个键值对</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">client.set(<span class="string">'key'</span>,<span class="string">'value'</span>)</span><br><span class="line"><span class="comment">// 设置过期时间 10s后过期</span></span><br><span class="line">client.set(<span class="string">'key'</span>,<span class="string">'value'</span>,<span class="string">'EX'</span>,<span class="number">10</span>)</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="get-获取在redis中存入的值"><a href="#get-获取在redis中存入的值" class="headerlink" title="get 获取在redis中存入的值"></a>get 获取在redis中存入的值</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">client.get(<span class="string">'key'</span>) <span class="comment">// value</span></span><br></pre></td></tr></table></figure></li>
+<li><h4 id="hset-通过hash-key-存值"><a href="#hset-通过hash-key-存值" class="headerlink" title="hset 通过hash key 存值"></a>hset 通过hash key 存值</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">client.hset(<span class="string">'hash key'</span>,<span class="string">'key'</span>,<span class="string">'value'</span>, redis.print)</span><br><span class="line"><span class="string">``</span><span class="string">` </span></span><br><span class="line"><span class="string">* #### hget 通过hash key 获取值</span></span><br><span class="line"><span class="string">`</span><span class="string">``</span>javascript</span><br><span class="line">client.hget(<span class="string">'hash key'</span>,<span class="string">'key'</span>, redis.print)</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="hkeys-所有的”hash-key”"><a href="#hkeys-所有的”hash-key”" class="headerlink" title="hkeys 所有的”hash key”"></a>hkeys 所有的”hash key”</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 遍历哈希表"hash key"</span></span><br><span class="line">client.hkeys(<span class="string">"hash key"</span>, <span class="function"><span class="keyword">function</span> (<span class="params">err, replies</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(replies.length + <span class="string">" replies:"</span>);</span><br><span class="line">    replies.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">reply, i</span>) </span>&#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">"    "</span> + i + <span class="string">": "</span> + reply);</span><br><span class="line">    &#125;);</span><br><span class="line">    client.quit();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="hmset"><a href="#hmset" class="headerlink" title="hmset"></a>hmset</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">client.hmset(<span class="string">'hash 1'</span>, <span class="string">'key'</span>, <span class="string">'value111'</span>, <span class="string">'key2'</span>, <span class="string">'value222'</span>, <span class="string">'key3'</span>, <span class="string">'value3'</span>, redis.print)</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="hmget"><a href="#hmget" class="headerlink" title="hmget"></a>hmget</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">client.hmget(<span class="string">'hash 1'</span>, <span class="string">'key'</span>, <span class="string">'key2'</span>, <span class="string">'key3'</span>, redis.print)</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="publish-subscribe-发布-订阅"><a href="#publish-subscribe-发布-订阅" class="headerlink" title="publish/subscribe 发布/订阅"></a>publish/subscribe 发布/订阅</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">const sub &#x3D; redis.createClient() &#x2F;&#x2F; 订阅者</span><br><span class="line">const pub &#x3D; redis.createClient() &#x2F;&#x2F; 发布者</span><br><span class="line">var msg_count &#x3D; 0;</span><br><span class="line"></span><br><span class="line">sub.on(&quot;subscribe&quot;, function (channel, count) &#123;</span><br><span class="line">    client.publish(&quot;a nice channel&quot;, &quot;I am sending a message.&quot;);</span><br><span class="line">    client.publish(&quot;a nice channel&quot;, &quot;I am sending a second message.&quot;);</span><br><span class="line">    client.publish(&quot;a nice channel&quot;, &quot;I am sending my last message.&quot;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">sub.on(&quot;message&quot;, function (channel, message) &#123;</span><br><span class="line">    console.log(&quot;sub channel &quot; + channel + &quot;: &quot; + message);</span><br><span class="line">    msg_count +&#x3D; 1;</span><br><span class="line">    if (msg_count &#x3D;&#x3D;&#x3D; 3) &#123;</span><br><span class="line">        sub.unsubscribe();</span><br><span class="line">        sub.quit();</span><br><span class="line">        client.quit();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="ready"><a href="#ready" class="headerlink" title="ready"></a>ready</h4>redis客户端连接准备好后触发，在此前所有发送给redis服务器的命令会以<strong>队列</strong>的形式进行排队，会在ready事件触发后发送给redis服务器<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">client.on(&#39;ready&#39;,function()&#123;</span><br><span class="line">    console.log(&#39;ready&#39;);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="connct-客户端在连接到服务器后触发"><a href="#connct-客户端在连接到服务器后触发" class="headerlink" title="connct 客户端在连接到服务器后触发"></a>connct 客户端在连接到服务器后触发</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">client.on(&#39;connect&#39;,function()&#123;</span><br><span class="line">    console.log(&#39;connect&#39;);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="reconnecting-客户端在连接断开后重新连接服务器时触发"><a href="#reconnecting-客户端在连接断开后重新连接服务器时触发" class="headerlink" title="reconnecting 客户端在连接断开后重新连接服务器时触发"></a>reconnecting 客户端在连接断开后重新连接服务器时触发</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">client.on(&#39;reconnecting &#39;, function (resc) &#123;</span><br><span class="line">    console.log(&#39;reconnecting&#39;,resc);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></li>
+<li><h4 id="error-错误监听"><a href="#error-错误监听" class="headerlink" title="error 错误监听"></a>error 错误监听</h4>client.on(“error”, function (err) {<br>  console.log(err);<br>});</li>
+<li><h4 id="end-连接断开时触发"><a href="#end-连接断开时触发" class="headerlink" title="end 连接断开时触发"></a>end 连接断开时触发</h4>client.on(‘end’,function(){<br>  console.log(‘end’)<br>})</li>
+<li><h4 id="createClient"><a href="#createClient" class="headerlink" title="createClient"></a>createClient</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">redis.createClient([options])</span><br><span class="line">redis.createClient(unix_socket[, options])</span><br><span class="line">redis.createClient(redis_url[, options])</span><br><span class="line">redis.createClient(port[, host][, options])</span><br></pre></td></tr></table></figure>
+<h5 id="options-object-properties"><a href="#options-object-properties" class="headerlink" title="options object properties"></a>options object properties</h5>属性 | 默认值 | 描述</li>
+</ul>
+<p>—|—|—<br>host　|    127.0.0.1  |    redis服务器地址<br>port  |    6379  |    端口号<br>connect_timeout  |    3600000    |  连接超时时间 以ms为单位<br>password  |    null  |    密码</p>
+<h2 id="公众号"><a href="#公众号" class="headerlink" title="公众号"></a>公众号</h2><p>欢迎关注我的公众号“<strong>码上开发</strong>”，每天分享最新技术资讯。关注获取最新资源</p>
+<p><img src="/images/qrcode.png" alt=""></p>
+
+                                                                        
+                                    </div>
+                                    <footer class="article-footer">
+                                        <a data-url="http://yoursite.com/2018/08/08/%E5%9C%A8centos7%E4%B8%AD%E5%AE%89%E8%A3%85redis%EF%BC%8C%E5%B9%B6%E9%80%9A%E8%BF%87node.js%E6%93%8D%E4%BD%9Credis/" data-id="ck9zj8dr60001911k7qn326ur" class="article-share-link">
+                                            分享
+                                        </a>
+                                        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/node-js/" rel="tag">node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+                                    </footer>
+
+    </div>
+
+    
+        
+  <nav class="article-nav">
+    
+      <a href="/2018/08/26/%E4%BD%BF%E7%94%A8pm2%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2node%E9%A1%B9%E7%9B%AE/" class="article-nav-link">
+        <strong class="article-nav-caption">前一篇</strong>
+        <div class="article-nav-title">
+          
+            使用pm2自动化部署node项目
+          
+        </div>
+      </a>
+    
+    
+  </nav>
+
+
+            
+
+                
+                    
+                        
+                            
+
+</article>
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2020 lentoo</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="lentoo"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">主页</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">归档</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/gallery">相册</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">关于</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="搜索">
+        <i class="fe fe-search"></i>
+        搜索
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>
