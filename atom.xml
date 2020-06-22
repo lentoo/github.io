@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-09T11:08:14.303Z</updated>
+  <updated>2020-06-22T03:11:08.696Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,11 +17,38 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>通过vue-cli3构建一个SSR应用程序</title>
+    <link href="http://yoursite.com/2018/09/12/%E9%80%9A%E8%BF%87vue-cli3%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AASSR%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F/"/>
+    <id>http://yoursite.com/2018/09/12/%E9%80%9A%E8%BF%87vue-cli3%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AASSR%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F/</id>
+    <published>2018-09-12T10:54:09.000Z</published>
+    <updated>2020-06-22T03:11:08.696Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;SSR（服务端渲染）顾名思义就是将页面在服务端渲染完成后在客户端直接展示。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="大前端" scheme="http://yoursite.com/categories/%E5%A4%A7%E5%89%8D%E7%AB%AF/"/>
+    
+    
+      <category term="Node.js" scheme="http://yoursite.com/tags/Node-js/"/>
+    
+      <category term="Vue" scheme="http://yoursite.com/tags/Vue/"/>
+    
+      <category term="vue-cli3" scheme="http://yoursite.com/tags/vue-cli3/"/>
+    
+      <category term="SSR" scheme="http://yoursite.com/tags/SSR/"/>
+    
+  </entry>
+  
+  <entry>
     <title>从零搭建docker+jenkins+node.js自动化部署环境</title>
     <link href="http://yoursite.com/2018/09/04/%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BAdocker-jenkins-node-js%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E7%8E%AF%E5%A2%83/"/>
     <id>http://yoursite.com/2018/09/04/%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BAdocker-jenkins-node-js%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E7%8E%AF%E5%A2%83/</id>
     <published>2018-09-04T10:54:09.000Z</published>
-    <updated>2020-05-09T11:08:14.303Z</updated>
+    <updated>2020-06-22T02:56:25.771Z</updated>
     
     <summary type="html">
     
@@ -48,7 +75,7 @@
     <link href="http://yoursite.com/2018/08/26/%E4%BD%BF%E7%94%A8pm2%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2node%E9%A1%B9%E7%9B%AE/"/>
     <id>http://yoursite.com/2018/08/26/%E4%BD%BF%E7%94%A8pm2%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2node%E9%A1%B9%E7%9B%AE/</id>
     <published>2018-08-25T16:00:00.000Z</published>
-    <updated>2020-05-09T10:49:07.486Z</updated>
+    <updated>2020-06-22T02:52:31.724Z</updated>
     
     <summary type="html">
     
